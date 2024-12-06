@@ -37,7 +37,8 @@
 		"@tinacms/auth": "^1.0.9",
 		"astro": "4.0.8",
 		"astro-font": "^0.0.72",
-		"next-tinacms-s3": "^8.0.0"
+		"next-tinacms-s3": "^8.0.0",
+		"sharp": "^0.33.5"
 	},
 	"devDependencies": {
 		"@astrojs/mdx": "2.0.3",
