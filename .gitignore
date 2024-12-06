@@ -16,8 +16,6 @@ yarn-error.log*
 pnpm-debug.log*
 
 
-static
-
 # environment variables
 .env
 .env.production
@@ -26,3 +24,5 @@ static
 .DS_Store
 
 node_modules
+
+static
