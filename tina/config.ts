@@ -14,9 +14,10 @@ export default defineConfig({
 		publicFolder: 'public'
 	},
 	media: {
-		loadCustomStore: async () => {
-			const pack = await import('next-tinacms-s3')
-			return pack.TinaCloudS3MediaStore
+		tina: {
+			publicFolder: 'public',
+			mediaRoot: 'media',
+			static: true //default is false
 		}
 	},
 	schema: {
