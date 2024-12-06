@@ -113,7 +113,7 @@
 				"namespace": ["post"]
 			}
 		],
-		"config": { "media": { "tina": { "publicFolder": "static", "mediaRoot": "uploads" } } }
+		"config": { "media": { "tina": { "publicFolder": "/src/assets", "mediaRoot": "uploads" } } }
 	},
 	"lookup": {
 		"DocumentConnection": {
