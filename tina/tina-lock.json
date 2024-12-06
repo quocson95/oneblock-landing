@@ -114,7 +114,7 @@
 			}
 		],
 		"config": {
-			"media": { "tina": { "publicFolder": "public", "mediaRoot": "uploads", "static": false } }
+			"media": { "tina": { "publicFolder": "public", "mediaRoot": "media", "static": true } }
 		}
 	},
 	"lookup": {
