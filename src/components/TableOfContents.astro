@@ -21,7 +21,11 @@ function buildToc(headings: TableOfContent[]) {
 		if (heading.depth === 1 || heading.depth === 2) {
 			toc.push(heading)
 		} else {
-			parentHeadings.get(heading.depth - 1).subheadings.push(heading)
+			console.log(parentHeadings)
+			let v = parentHeadings.get(heading.depth - 1)
+			if (v) {
+				v.subheadings.push(heading)
+			}
 		}
 	})
 	return toc
@@ -29,7 +33,7 @@ function buildToc(headings: TableOfContent[]) {
 ---
 
 <nav class='max-w-xs dark:text-black'>
-	<p class='font-bold mb-3 text-2xl dark:text-white'>Index</p>
+	<p class='font-bold mb-3 text-2xl dark:text-white'>Chỉ mục</p>
 	<ul class='[text-wrap:balance] flex flex-col gap-1'>
 		{toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
 	</ul>
