@@ -17,6 +17,7 @@ COPY . .
 # Buid
 RUN npx tinacms build 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm postbuild
 
 
 # Use the Nginx image to serve the Angular app

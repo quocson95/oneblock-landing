@@ -45,7 +45,7 @@ export default defineConfig({
 					},
 					{
 						type: 'string',
-						label: 'description',
+						label: 'Description',
 						required: true,
 						name: 'description',
 						description: 'A short description of the post'
