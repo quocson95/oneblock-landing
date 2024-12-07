@@ -1,13 +1,13 @@
 ---
 import { cn, sluglify } from '@/utils'
 
-const { name = 'View All', activeCategory } = Astro.props
+const { name = 'Tất cả', activeCategory } = Astro.props
 const currentPath = Astro.url.pathname
 const unsluglifyNameCategory = sluglify(name.toLowerCase())
 
 const isActive =
 	activeCategory?.toLocaleLowerCase() === unsluglifyNameCategory ||
-	(currentPath === '/' && name === 'View All')
+	(currentPath === '/' && name === 'Tất cả')
 ---
 
 <a
