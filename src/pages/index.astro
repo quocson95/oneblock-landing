@@ -5,7 +5,7 @@ import TitlePage from '@/components/TitlePage'
 import BaseLayout from '@/layouts/BaseLayout'
 import { getPosts } from '@/utils'
 import { siteConfig } from '@/site-config'
-
+import SpeedInsights from '@vercel/speed-insights/astro'
 const MAX_POSTS = 5 // max number of posts to show on the home page
 const posts = await getPosts(MAX_POSTS)
 ---
@@ -13,13 +13,12 @@ const posts = await getPosts(MAX_POSTS)
 <BaseLayout title='Home'>
 	<TitlePage title={siteConfig.title} />
 	<ListCategories />
-
 	<div>
 		<h2 class='text-lg font-medium tracking-wide text-end'>Mới cập nhật</h2>
 		<ListPosts FirstBig={true} posts={posts} />
 	</div>
 </BaseLayout>
-
+<SpeedInsights />
 <script>
 	import { animate } from 'motion'
 	const showAnimations = localStorage.getItem('animations') === 'true'
