@@ -33,7 +33,7 @@
 		"prepare": "husky install"
 	},
 	"dependencies": {
-		"@astrojs/rss": "4.0.1",
+		"@astrojs/rss": "4.0.10",
 		"@tinacms/auth": "^1.0.9",
 		"@vercel/analytics": "^1.4.1",
 		"@vercel/speed-insights": "^1.1.0",
