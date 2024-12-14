@@ -12,7 +12,11 @@ const blog = defineCollection({
 				.string()
 				.or(z.date())
 				.transform((val) => new Date(val)),
-			heroImage: image(),
+			heroImage: z.union([
+				z.string().url(), // Allow remote URLs
+				z.string().regex(/^\.\//), // Allow relative local file paths
+				image()
+			]),
 			category: z.enum(CATEGORIES),
 			tags: z.array(z.string()),
 			draft: z.boolean().default(false)

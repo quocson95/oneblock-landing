@@ -15,7 +15,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
 # Copy the source code
 COPY . .
 # Buid
-RUN npx tinacms build 
+# RUN npx tinacms build 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm postbuild
 
