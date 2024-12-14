@@ -50,9 +50,13 @@ function calculateMD5(filePath) {
       const items = await response.json();
   
       const basePath = process.cwd() + "/src/content/blog"
+
+      if (!fs.existsSync(basePath)){
+        fs.mkdirSync(basePath);
+      }
       for (const item of items) {
         const filePath = path.join(basePath, item.name);
-  
+        
         // Check if the file exists
         if (fs.existsSync(filePath)) {
           // Calculate the MD5 checksum of the local file
