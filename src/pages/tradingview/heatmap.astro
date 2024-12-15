@@ -7,7 +7,7 @@ import TitlePage from '@/components/TitlePage'
 	<TitlePage title='Trading view' />
 	<!-- TradingView Widget BEGIN -->
 	<div style='width: 80vw;'>
-		<script>
+		<script is:inline>
 			// Create the configuration object as a JavaScript variable
 			const widgetConfig = {
 				dataSource: 'Crypto',
@@ -32,7 +32,7 @@ import TitlePage from '@/components/TitlePage'
 					'https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js'
 				script.async = true
 				script.textContent = JSON.stringify(widgetConfig)
-				document.querySelector('.tradingview-widget-container')?.appendChild(script)
+				document.querySelector('.body')?.appendChild(script)
 			})
 		</script>
 		<div class='tradingview-widget-container'>
