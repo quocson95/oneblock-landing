@@ -5,36 +5,36 @@ import TitlePage from '@/components/TitlePage'
 
 <BaseLayout title='Tags'>
 	<TitlePage title='Trading view' />
+	<script is:inline>
+		// Create the configuration object as a JavaScript variable
+		const widgetConfig = {
+			dataSource: 'Crypto',
+			blockSize: 'market_cap_calc',
+			blockColor: 'change',
+			locale: 'en',
+			symbolUrl: '',
+			colorTheme: 'dark',
+			hasTopBar: false,
+			isDataSetEnabled: false,
+			isZoomEnabled: true,
+			hasSymbolTooltip: true,
+			isMonoSize: false,
+			width: '100%',
+			height: '700'
+		}
+
+		// Wait for the DOM to load before appending the script
+		window.addEventListener('DOMContentLoaded', () => {
+			const script = document.createElement('script')
+			script.src =
+				'https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js'
+			script.async = true
+			script.textContent = JSON.stringify(widgetConfig)
+			document.querySelector('.tradingview-widget-container')?.appendChild(script)
+		})
+	</script>
 	<!-- TradingView Widget BEGIN -->
 	<div style='width: 80vw;'>
-		<script is:inline>
-			// Create the configuration object as a JavaScript variable
-			const widgetConfig = {
-				dataSource: 'Crypto',
-				blockSize: 'market_cap_calc',
-				blockColor: 'change',
-				locale: 'en',
-				symbolUrl: '',
-				colorTheme: 'dark',
-				hasTopBar: false,
-				isDataSetEnabled: false,
-				isZoomEnabled: true,
-				hasSymbolTooltip: true,
-				isMonoSize: false,
-				width: '100%',
-				height: '700'
-			}
-
-			// Wait for the DOM to load before appending the script
-			window.addEventListener('DOMContentLoaded', () => {
-				const script = document.createElement('script')
-				script.src =
-					'https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js'
-				script.async = true
-				script.textContent = JSON.stringify(widgetConfig)
-				document.querySelector('.body')?.appendChild(script)
-			})
-		</script>
 		<div class='tradingview-widget-container'>
 			<div class='tradingview-widget-container__widget'></div>
 			<div class='tradingview-widget-copyright'>
