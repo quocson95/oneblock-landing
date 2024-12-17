@@ -25,7 +25,15 @@ const SOCIALNETWORKS = [
 
 <header class='relative flex items-center h-12 font-semibold'>
 	<a class='text-lg mr-auto' href='/'>Trang chủ</a>
-	<a class='text-lg mr-2' href='/tradingview/heatmap'>Heatmap</a>
+	<button
+		id='subscription-calendar'
+		class='text-lg mr-2 md:border-r-2 border-black pr-4 dark:border-white'>Lịch kinh tế</button
+	>
+	<a
+		class='text-lg md:border-r-2 mr-2 border-black pr-4 dark:border-white'
+		href='/tradingview/heatmap'>Heatmap</a
+	>
+
 	<div
 		id='astro-header-drawer'
 		class='shadow rounded-l-lg md:bg-transparent dark:md:bg-transparent bg-white dark:bg-[#0a0910] md:shadow-none md:rounded-none md:border-none md:h-auto md:static absolute transition-transform duration-300 ease-in translate-x-96 md:translate-x-0 top-12 -right-5 pl-4 pt-6 pb-4 md:p-0 h-[200px] w-[200px] z-50'
@@ -65,7 +73,16 @@ const SOCIALNETWORKS = [
 	</div>
 </header>
 <script>
+	const addToGoogleCalendar = () => {
+		const icsUrl = 'https://api.oneblock.vn/be/ics'
+		// Create an invisible anchor element
+		const a = document.createElement('a')
+		a.href = icsUrl
+		a.download = 'event.ics' // Optional: set a default name for the file
+		a.click() // Trigger the download
+	}
 	document.addEventListener('click', (event) => {
+		console.log(event)
 		const menu = document.getElementById('astro-header-drawer')
 		const menuButton = document.getElementById('astro-header-drawer-button')
 		const isClickInside =
@@ -76,6 +93,11 @@ const SOCIALNETWORKS = [
 			menu?.classList.toggle('translate-x-96')
 		} else {
 			menu?.classList.add('translate-x-96')
+		}
+		const subsriptioCalButton = document.getElementById('subscription-calendar')
+		if (subsriptioCalButton?.contains(event.target as HTMLButtonElement)) {
+			console.log('click subsriptioCalButton')
+			addToGoogleCalendar()
 		}
 	})
 </script>
