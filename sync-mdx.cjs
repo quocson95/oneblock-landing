@@ -40,40 +40,53 @@ function calculateMD5(filePath) {
       const apiUrl = "https://api.oneblock.vn/be/mdx";
       const downloadBaseUrl = "https://api.oneblock.vn/be/s3/";
   
-      // Fetch the list from the API
-      const response = await fetch(apiUrl);
+      
   
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${apiUrl}: ${response.statusText}`);
-      }
-  
-      const items = await response.json();
-  
-      const basePath = process.cwd() + "/src/content/blog"
-
-      if (!fs.existsSync(basePath)){
-        fs.mkdirSync(basePath);
-      }
-      for (const item of items) {
-        const filePath = path.join(basePath, item.name);
-        
-        // Check if the file exists
-        if (fs.existsSync(filePath)) {
-          // Calculate the MD5 checksum of the local file
-          const localMD5 = await calculateMD5(filePath);
-  
-          // Compare MD5 checksums
-          if (localMD5 !== item.md5) {
-            console.log(`MD5 mismatch for ${item.name}, downloading...`);
-            await downloadFile(`${downloadBaseUrl}?name=${item.name}&bucket=mdx`, filePath);
-          } else {
-            console.log(`${item.name} is up-to-date.`);
-          }
-        } else {
-          console.log(`${item.name} does not exist locally, downloading...`);
-          await downloadFile(`${downloadBaseUrl}?name=${item.name}&bucket=mdx`, filePath);
+      const listSync = [
+        {
+          path: process.cwd() + "/src/content/blog",
+          params: "", 
+        },
+        {
+          path: process.cwd() + "/src/content/about",
+          params: "type_doc=2", 
         }
-      }
+      ]
+      listSync.forEach(  async (syncItem) => {
+        const basePath = syncItem.path;
+        const params = syncItem.params;
+        if (!fs.existsSync(basePath)){
+          fs.mkdirSync(basePath);
+        }
+        // Fetch the list from the API
+        const response = await fetch(`${apiUrl}?${params}`);
+    
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${apiUrl}: ${response.statusText}`);
+        }
+    
+      const items = await response.json();
+        for (const item of items) {
+          const filePath = path.join(basePath, item.name);
+    
+          // Check if the file exists
+          if (fs.existsSync(filePath)) {
+            // Calculate the MD5 checksum of the local file
+            const localMD5 = await calculateMD5(filePath);
+    
+            // Compare MD5 checksums
+            if (localMD5 !== item.md5) {
+              console.log(`MD5 mismatch for ${item.name}, downloading...`);
+              await downloadFile(`${downloadBaseUrl}?name=${item.name}&bucket=mdx`, filePath);
+            } else {
+              console.log(`${item.name} is up-to-date.`);
+            }
+          } else {
+            console.log(`${item.name} does not exist locally, downloading...`);
+            await downloadFile(`${downloadBaseUrl}?name=${item.name}&bucket=mdx`, filePath);
+          }
+        }      
+      });
   
       console.log("Sync complete.");
     } catch (error) {

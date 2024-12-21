@@ -1,6 +1,8 @@
 ---
 import { siteConfig } from '@/data/site.config'
-import TwitterColorIcon from './icons/TwitterColorIcon.astro'
+import FacebookIconColor from './icons/FacebookIconColor.astro'
+import TelegramIconColor from './icons/TelegramIconColor.astro'
+
 import LinkedinIcon from './icons/linkedinIcon.astro'
 const message = siteConfig.shareMessage
 
@@ -12,16 +14,18 @@ const URL = Astro.url.href
 	<ul class='flex gap-3 text-black dark:text-white'>
 		<li>
 			<a
-				href={`https://twitter.com/intent/tweet?text=${message + ' ' + URL}`}
-				aria-label='Share on Twitter'><TwitterColorIcon /></a
+				target='_blank'
+				href={`https://www.facebook.com/sharer/sharer.php?u=${URL}`}
+				aria-label='Chia sẻ Facebook'><FacebookIconColor size(32,32) /></a
 			>
 		</li>
 		<li>
 			<a
-				href={`https://www.linkedin.com/shareArticle?mini=true&url=${URL}`}
-				aria-label='Share on LinkedIn'
+				target='_blank'
+				href={`https://t.me/share/url?url=${URL}&text=${message}`}
+				aria-label='Share on Telegram'
 			>
-				<LinkedinIcon /></a
+				<TelegramIconColor /></a
 			>
 		</li>
 	</ul>
