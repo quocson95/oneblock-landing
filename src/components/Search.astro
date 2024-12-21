@@ -47,7 +47,25 @@ import SearchIcon from '@/components/icons/SearchIcon'
 			const closeBtn = this.querySelector<HTMLButtonElement>('button[data-close-modal]')!
 			const dialog = this.querySelector('dialog')!
 			const dialogFrame = this.querySelector('.dialog-frame')!
-
+			let initEngine = false
+			const loadPageFindEngine = async () => {
+				if (import.meta.env.DEV) {
+					console.log('')
+					return
+				}
+				if (initEngine) {
+					return
+				}
+				initEngine = true
+				// @ts-ignore
+				const { PagefindUI } = await import('@pagefind/default-ui')
+				new PagefindUI({
+					element: '#pagefind__search',
+					baseUrl: import.meta.env.BASE_URL,
+					bundlePath: import.meta.env.BASE_URL.replace(/\/$/, '') + '/pagefind/',
+					showImages: false
+				})
+			}
 			const onWindowClick = (event: MouseEvent) => {
 				// make sure the click is outside the of the dialog
 				if (
@@ -62,7 +80,9 @@ import SearchIcon from '@/components/icons/SearchIcon'
 					window.removeEventListener('keydown', handleEscKey)
 				} else return
 			}
+
 			const openModal = (event?: MouseEvent) => {
+				loadPageFindEngine()
 				dialog.showModal()
 
 				animate(
@@ -101,21 +121,6 @@ import SearchIcon from '@/components/icons/SearchIcon'
 					openModal()
 					e.preventDefault()
 				}
-			})
-
-			window.addEventListener('DOMContentLoaded', () => {
-				if (import.meta.env.DEV) return
-				const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1))
-				onIdle(async () => {
-					// @ts-ignore
-					const { PagefindUI } = await import('@pagefind/default-ui')
-					new PagefindUI({
-						element: '#pagefind__search',
-						baseUrl: import.meta.env.BASE_URL,
-						bundlePath: import.meta.env.BASE_URL.replace(/\/$/, '') + '/pagefind/',
-						showImages: false
-					})
-				})
 			})
 		}
 	}

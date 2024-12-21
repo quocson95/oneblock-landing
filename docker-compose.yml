@@ -1,0 +1,10 @@
+services:
+  landing-cms:
+    container_name: oneblock_landing_cms
+    build:
+      context: ./
+    ports:
+      - "8100:80"
+    restart: always  
+
+
