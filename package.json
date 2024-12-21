@@ -21,7 +21,7 @@
 	},
 	"scripts": {
 		"dev": "npx tinacms dev -c \"astro dev\"",
-		"start": "node sync-mdx.cjs && astro dev",
+		"start": "node sync-mdx.cjs && astro dev  --host",
 		"build": "node sync-mdx.cjs && astro build",
 		"sync": "astro sync",
 		"preview": "astro preview",
