@@ -39,16 +39,17 @@ function calculateMD5(filePath) {
     try {
       const apiUrl = "https://api.oneblock.vn/be/mdx";
       const downloadBaseUrl = "https://api.oneblock.vn/be/s3/";
-  
-      
-  
+      const rootPath = process.cwd() + "/src/content"
+      if (!fs.existsSync(rootPath)){
+        fs.mkdirSync(rootPath);
+      }
       const listSync = [
         {
-          path: process.cwd() + "/src/content/blog",
+          path: rootPath + "/blog",
           params: "", 
         },
         {
-          path: process.cwd() + "/src/content/about",
+          path: rootPath + "/about",
           params: "type_doc=2", 
         }
       ]
