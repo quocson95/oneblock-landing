@@ -11,17 +11,23 @@ export const getCategories = async () => {
 	)
 }
 
+const compareFn = (a: any, b: any) => {
+	const aa = new Date(a.data.pubDate)
+	const bb = new Date(b.data.pubDate)
+	return bb.getTime() - aa.getTime()
+}
+
 export const getPosts = async (max?: number) => {
 	return (await getCollection('blog'))
 		.filter((post) => !post.data.draft)
-		.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+		.sort(compareFn)
 		.slice(0, max)
 }
 
 export const getAbouts = async (max?: number) => {
 	return (await getCollection('about'))
 		.filter((post) => !post.data.draft)
-		.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+		.sort(compareFn)
 		.slice(0, max)
 }
 
