@@ -78,13 +78,13 @@ function calculateMD5(filePath) {
             // Compare MD5 checksums
             if (localMD5 !== item.md5) {
               console.log(`MD5 mismatch for ${item.name}, downloading...`);
-              await downloadFile(`${downloadBaseUrl}?name=${item.name}&bucket=mdx`, filePath);
+              await downloadFile(`${downloadBaseUrl}?name=${item.name}&bucket=mdx&noCache=true`, filePath);
             } else {
               console.log(`${item.name} is up-to-date.`);
             }
           } else {
             console.log(`${item.name} does not exist locally, downloading...`);
-            await downloadFile(`${downloadBaseUrl}?name=${item.name}&bucket=mdx`, filePath);
+            await downloadFile(`${downloadBaseUrl}?name=${item.name}&bucket=mdx&noCache=true`, filePath);
           }
         }      
       });
