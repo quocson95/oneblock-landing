@@ -1,4 +1,4 @@
-FROM node:18.20.5-alpine3.19 AS builder
+FROM node:22.12-alpine3.20 AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
