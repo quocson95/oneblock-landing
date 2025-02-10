@@ -1,7 +1,7 @@
 FROM node:22.12-alpine3.20 AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install -g corepack@latest && corepack enable
 
 # Set the working directory
 WORKDIR /app
