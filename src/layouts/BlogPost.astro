@@ -20,12 +20,7 @@ const d = new Date(pubDate)
 const articleDate = d.toISOString()
 ---
 
-<BaseLayout
-	title={title}
-	description={description}
-	image={heroImage?.src}
-	articleDate={articleDate}
->
+<BaseLayout title={title} description={description} image={heroImage} articleDate={articleDate}>
 	<article class='min-w-full md:py-4 sm:max-w-none md:max-w-none'>
 		<header class='mb-3 flex flex-col justify-center items-center gap-6'>
 			<div class='flex flex-col gap-2'>
@@ -47,22 +42,20 @@ const articleDate = d.toISOString()
 			</div>
 		</header>
 
-		<>
-			{
-				heroImage && (
-					<Image
-						src={heroImage?.replace('w=600', '')}
-						width={1000}
-						height={500}
-						quality={100}
-						format='webp'
-						loading='eager'
-						class='rounded-md w-full max-h-[300px]  md:max-h-[500px] my-8 object-cover'
-						alt={`img of ${title}`}
-					/>
-				)
-			}
-		</>
+		{
+			heroImage && (
+				<Image
+					src={heroImage?.replace('w=600', '')}
+					width={1000}
+					height={500}
+					quality={100}
+					format='webp'
+					loading='eager'
+					class='rounded-md w-full max-h-[300px]  md:max-h-[500px] my-8 object-cover'
+					alt={`img of ${title}`}
+				/>
+			)
+		}
 
 		<hr />
 
