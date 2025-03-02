@@ -27,7 +27,10 @@ import MoonIcon from '@/components/icons/MoonIcon'
 		}
 	}
 
-	if ('customElements' in window) {
+	// if ( (!customElements.get('the-element')) && ('customElements' in window)){
+	// 	customElements.define('theme-toggle', themeToggle)
+	// }
+	if (typeof customElements !== 'undefined' && !customElements.get('theme-toggle')) {
 		customElements.define('theme-toggle', themeToggle)
 	}
 </script>

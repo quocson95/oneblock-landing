@@ -1,0 +1,53 @@
+---
+// components/BackToTop.astro
+---
+
+<button
+	id='back-to-top'
+	aria-label='Back to top'
+	class='fixed bottom-4 right-4 p-2 rounded-full bg-primary text-primary-foreground opacity-0 invisible transition-all duration-300 hover:bg-primary/90 z-50'
+	onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+>
+	<svg
+		xmlns='http://www.w3.org/2000/svg'
+		width='24'
+		height='24'
+		viewBox='0 0 24 24'
+		fill='none'
+		stroke='currentColor'
+		stroke-width='2'
+		stroke-linecap='round'
+		stroke-linejoin='round'
+	>
+		<path d='m18 15-6-6-6 6'></path>
+	</svg>
+</button>
+
+<script>
+	function toggleBackToTop() {
+		const button = document.querySelector('#back-to-top')
+		if (!button) return
+
+		if (window.scrollY > 200) {
+			button.classList.remove('invisible', 'opacity-0')
+			button.classList.add('opacity-100')
+		} else {
+			button.classList.add('invisible', 'opacity-0')
+			button.classList.remove('opacity-100')
+		}
+	}
+
+	// Add scroll listener
+	window.addEventListener('scroll', toggleBackToTop)
+
+	// Initialize on page load
+	document.addEventListener('astro:page-load', () => {
+		toggleBackToTop()
+		window.addEventListener('scroll', toggleBackToTop)
+	})
+
+	// Clean up on page unload
+	document.addEventListener('astro:before-swap', () => {
+		window.removeEventListener('scroll', toggleBackToTop)
+	})
+</script>
