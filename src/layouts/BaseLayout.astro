@@ -7,6 +7,7 @@ import ProviderAnimations from '@/components/ProviderAnimations'
 import TwSizeIndicator from '@/components/TwSizeIndicator'
 import EditBlog from '@/components/editBlog'
 import GoogleAnalytics from './GoogleAnalytics.astro'
+import BackToTop from './BackToTop.astro'
 
 const { title, description, image, articleDate } = Astro.props
 ---
@@ -26,9 +27,11 @@ const { title, description, image, articleDate } = Astro.props
 			<Header />
 			<slot />
 			<Footer />
+			<BackToTop />
 		</main>
 		<TwSizeIndicator />
 		<EditBlog />
+		<BackToTop />
 		<style>
 			body {
 				margin-left: calc(100vw - 100%); /* prevent layout shift */
