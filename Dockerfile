@@ -1,4 +1,8 @@
 FROM node:22.12-alpine3.20 AS builder
+
+ARG BUILDMODE=prod
+ENV BUILDMODE=$BUILDMODE
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install -g corepack@latest && corepack enable
@@ -17,7 +21,9 @@ COPY . .
 # Buid
 # RUN npx tinacms build 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm build
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm postbuild
+# Run postbuild only if BUILDMODE is "prod"
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    if [ "$BUILDMODE" = "prod" ]; then pnpm postbuild; else echo "Skipping postbuild"; fi
 
 
 # Use the Nginx image to serve the Angular app
