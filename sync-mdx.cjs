@@ -43,9 +43,9 @@ async function downloadFile(url, filePath) {
 
     // Res.body is a Web stream; convert to Node stream for pipeline
     await pipeline(Readable.fromWeb(res.body), fs.createWriteStream(filePath));
-    console.log(`Downloaded ${filePath}`);
+    console.log(`[✓] Downloaded ${filePath}`);
   } catch (err) {
-    console.error(`Failed to download ${url}:`, err);
+    console.error(`[x] Failed to download ${url}:`, err);
     throw err;
   }
 }
@@ -80,14 +80,15 @@ async function syncOneFolder({ basePath, params, apiUrl, downloadBaseUrl }) {
     if (exists) {
       const localMD5 = await calculateMD5(filePath).catch(() => null);
       if (!localMD5 || localMD5 !== item.md5) {
-        console.log(`MD5 mismatch for ${item.name}, downloading...`);
+        console.log(`[x] MD5 mismatch for ${item.name}, downloading...`);
+        await fsp.rm(filePath);
         const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=true`;
         await downloadFile(u, filePath);
       } else {
-        console.log(`${item.name} is up-to-date.`);
+        console.log(`[✓] ${item.name} is up-to-date.`);
       }
     } else {
-      console.log(`${item.name} does not exist locally, downloading...`);
+      console.log(`[x] ${item.name} does not exist locally, downloading...`);
       const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=true`;
       await downloadFile(u, filePath);
     }
