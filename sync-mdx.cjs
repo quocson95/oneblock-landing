@@ -80,7 +80,7 @@ async function syncOneFolder({ basePath, params, apiUrl, downloadBaseUrl }) {
     if (exists) {
       const localMD5 = await calculateMD5(filePath).catch(() => null);
       if (!localMD5 || localMD5 !== item.md5) {
-        console.log(`[x] MD5 mismatch for ${item.name}, downloading...`);
+        console.log(`[ ] MD5 mismatch for ${item.name}, downloading...`);
         await fsp.rm(filePath);
         const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=true`;
         await downloadFile(u, filePath);
@@ -88,7 +88,7 @@ async function syncOneFolder({ basePath, params, apiUrl, downloadBaseUrl }) {
         console.log(`[✓] ${item.name} is up-to-date.`);
       }
     } else {
-      console.log(`[x] ${item.name} does not exist locally, downloading...`);
+      console.log(`[ ] ${item.name} does not exist locally, downloading...`);
       const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=true`;
       await downloadFile(u, filePath);
     }
@@ -114,9 +114,9 @@ async function syncFiles() {
       )
     );
 
-    console.log("Sync complete.");
+    console.log("[✓] Sync complete.");
   } catch (error) {
-    console.error("Error syncing files:", error);
+    console.error("[x] Error syncing files:", error);
     process.exitCode = 1;
   }
 }
