@@ -1,4 +1,4 @@
-name: Build Docker on Remote Machine
+name: Build on Oneblock VM
 
 on:
   push:
