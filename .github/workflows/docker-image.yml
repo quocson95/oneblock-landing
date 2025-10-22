@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted  # Runs on your remote machine
+    runs-on: [self-hosted,ubuntu-latest]  # Runs on your remote machine
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
