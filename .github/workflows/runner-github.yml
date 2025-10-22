@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted # Runs on your remote machine
+    runs-on: ubuntu-latest # Runs on github machine
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
