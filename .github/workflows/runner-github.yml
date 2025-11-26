@@ -2,7 +2,15 @@ name: Deploy Astro Worker with Versioning
 
 on:
   workflow_dispatch:    
-
+    inputs:
+      environment:
+        description: "Choose environment: <dev|main>"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -33,7 +41,7 @@ jobs:
       # . PROD Deploy Step: Live Deployment
       # Runs only if the user selected 'prod'
       - name: Deploy to Production (Live) 🚀
-        if: ${{ github.ref == 'main' }}
+        if: ${{ github.event.inputs.environment == 'main' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -44,7 +52,7 @@ jobs:
       # Runs if the user selected 'dev' (or anything else)
       # This uploads a "Version" to Cloudflare but does not route 100% traffic to it automatically.
       - name: Upload Worker Version (Non-Prod) 📦
-        if: ${{ github.ref != 'main' }}
+        if: ${{ github.event.inputs.environment != 'main' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
