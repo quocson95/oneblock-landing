@@ -19,19 +19,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 1. NEW: Install pnpm itself
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9 # Use the version matching your local setup
+
+      # 2. UPDATED: Setup Node with pnpm caching
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'          
+          node-version: '20'
+          cache: 'pnpm' # Changed from 'npm' to 'pnpm'
 
+      # 3. UPDATED: Install dependencies using pnpm
       - name: Install Dependencies
-        run: npm ci
-
-      # 1. Your Custom Build Command
+        run: pnpm install --frozen-lockfile
+      # 4. UPDATED: Build using pnpm
       - name: Build Astro Project
-        run: node sync-mdx.cjs && npx astro build
+        run: node sync-mdx.cjs && pnpm astro build        
 
-      # 2. PROD Deploy Step: Live Deployment
+      # . PROD Deploy Step: Live Deployment
       # Runs only if the user selected 'prod'
       - name: Deploy to Production (Live) 🚀
         if: ${{ github.event.inputs.environment == 'main' }}
@@ -41,7 +49,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
-      # 3. NON-PROD Deploy Step: Upload Version Only
+      # 6. NON-PROD Deploy Step: Upload Version Only
       # Runs if the user selected 'dev' (or anything else)
       # This uploads a "Version" to Cloudflare but does not route 100% traffic to it automatically.
       - name: Upload Worker Version (Non-Prod) 📦
