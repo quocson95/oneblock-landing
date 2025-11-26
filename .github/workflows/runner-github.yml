@@ -1,14 +1,52 @@
-name: Build on GitHub VM
+name: Deploy Astro Worker with Versioning
 
-on:  
-  workflow_dispatch:  # Enables manual trigger
+on:
+  workflow_dispatch:    
 
 jobs:
-  build:
-    runs-on: ubuntu-latest # Runs on github machine
+  deploy:
+    runs-on: ubuntu-latest
+    name: Build & Deploy
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      
-      - name: Build Docker Image
-        run: make nocache
+      - uses: actions/checkout@v4
+
+      # 1. NEW: Install pnpm itself
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9 # Use the version matching your local setup
+
+      # 2. UPDATED: Setup Node with pnpm caching
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm' # Changed from 'npm' to 'pnpm'
+
+      # 3. UPDATED: Install dependencies using pnpm
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      # 4. UPDATED: Build using pnpm
+      - name: Build Astro Project
+        run: node sync-mdx.cjs && pnpm astro build        
+
+      # . PROD Deploy Step: Live Deployment
+      # Runs only if the user selected 'prod'
+      - name: Deploy to Production (Live) 🚀
+        if: ${{ github.ref == 'main' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+
+      # 6. NON-PROD Deploy Step: Upload Version Only
+      # Runs if the user selected 'dev' (or anything else)
+      # This uploads a "Version" to Cloudflare but does not route 100% traffic to it automatically.
+      - name: Upload Worker Version (Non-Prod) 📦
+        if: ${{ github.ref != 'main' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: versions upload
