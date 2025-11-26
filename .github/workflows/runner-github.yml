@@ -9,6 +9,15 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8 # Specify the desired pnpm version
+
+      - name: Build Astro project
+        run: node sync-mdx.cjs && npx astro build
+        
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
