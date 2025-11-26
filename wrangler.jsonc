@@ -3,5 +3,26 @@
     "compatibility_date": "2025-11-26", // Update to the day you deploy
     "assets": {
       "directory": "./dist"
+    },
+    "routes": [
+    {
+      "pattern": "oneblock.vn",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.oneblock.vn",
+      "custom_domain": true
     }
+  ],
+  "env": {
+    "dev": {
+      "name": "oneblock-landing-dev",
+      "routes": [
+        {
+          "pattern": "dev.oneblock.vn",
+          "custom_domain": true
+        }
+      ]
+    }
+  }
 }
