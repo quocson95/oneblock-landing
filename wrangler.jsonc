@@ -1,5 +1,5 @@
 {
-    "name": "oneblock-landing",
+    "name": "oneblock-dev",
     "compatibility_date": "2025-11-26", // Update to the day you deploy
     "assets": {
       "directory": "./dist"
