@@ -16,7 +16,7 @@ jobs:
           version: 8 # Specify the desired pnpm version
 
       - name: Build Astro project
-        run: node sync-mdx.cjs && npx astro build
+        run: node sync-mdx.cjs && pnpm install && npx astro build
         
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
