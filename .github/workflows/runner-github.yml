@@ -1,4 +1,4 @@
-name: Deploy Astro Worker with Versioning
+name: Deploy Oneblock Landing
 
 on:
   workflow_dispatch:    
