@@ -4,11 +4,13 @@ on:
   workflow_dispatch:  # Enables manual trigger
 
 jobs:
-  build:
-    runs-on: ubuntu-latest # Runs on github machine
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      
-      - name: Build Docker Image
-        run: make nocache
+      - uses: actions/checkout@v4
+      - name: Build & Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: nAdHbRG7qfu68MBJe2w6bvB7yruaDbIs35KIgSdB
+          accountId: f1e52499351d8597e286c9cdf879ceaa
