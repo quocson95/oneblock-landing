@@ -11,7 +11,8 @@
     },
     {
       "pattern": "www.oneblock.vn",
-      "custom_domain": true
+      "custom_domain": true,
+      "override_existing_dns_record": true
     }
   ],
   "env": {
@@ -20,6 +21,15 @@
       "routes": [
         {
           "pattern": "dev.oneblock.vn",
+          "custom_domain": true
+        }
+      ]
+    },
+    "prod": {
+      "name": "oneblock-landing-prod",
+      "routes": [
+        {
+          "pattern": "oneblock.vn",
           "custom_domain": true
         }
       ]

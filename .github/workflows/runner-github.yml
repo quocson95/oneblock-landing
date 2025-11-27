@@ -46,7 +46,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
+          command: deploy --env prod
 
       # 6. NON-PROD Deploy Step: Upload Version Only
       # Runs if the user selected 'dev' (or anything else)
