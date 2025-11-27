@@ -23,6 +23,15 @@
           "custom_domain": true
         }
       ]
+    },
+    "prod": {
+      "name": "oneblock-landing-prod",
+      "routes": [
+        {
+          "pattern": "oneblock.vn",
+          "custom_domain": true
+        }
+      ]
     }
   }
 }
