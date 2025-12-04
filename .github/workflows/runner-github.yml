@@ -1,6 +1,9 @@
 name: Deploy Oneblock Landing
 
 on:
+  push:
+    branches:
+      - dev
   workflow_dispatch:    
     inputs:
       environment:
@@ -28,7 +31,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'pnpm' # Changed from 'npm' to 'pnpm'
 
       # 3. UPDATED: Install dependencies using pnpm
