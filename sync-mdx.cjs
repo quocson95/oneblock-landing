@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+const { performance } = require('perf_hooks');
 const fs = require("node:fs");
 const fsp = require("node:fs/promises");
 const path = require("node:path");
@@ -34,18 +34,40 @@ function calculateMD5(filePath) {
 }
 
 async function downloadFile(url, filePath) {
+  const startTime = performance.now(); // 1. Start timer
+
   try {
     const res = await fetch(url);
+    
+    // 2. Capture TTFB (Time To First Byte)
+    // This is the time it took to establish connection and get headers
+    const ttfbTime = performance.now(); 
+
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
 
-    // Make sure parent dir exists (in case callers pass nested filePath)
+    // Optional: Get content length for throughput calculation
+    const contentLength = res.headers.get('content-length');
+    const sizeInMB = contentLength ? (parseInt(contentLength) / (1024 * 1024)).toFixed(2) : 'unknown';
+
     await ensureDir(path.dirname(filePath));
 
-    // Res.body is a Web stream; convert to Node stream for pipeline
     await pipeline(Readable.fromWeb(res.body), fs.createWriteStream(filePath));
-    console.log(`[✓] Downloaded ${filePath}`);
+
+    // 3. Capture End Time
+    const endTime = performance.now();
+
+    // 4. Calculate Metrics
+    const ttfb = (ttfbTime - startTime).toFixed(2);           // Request latency
+    const downloadTime = (endTime - ttfbTime).toFixed(2);     // Data transfer time
+    const totalDuration = (endTime - startTime).toFixed(2);   // Total time
+
+    console.log(`[✓] Downloaded ${filePath} (${sizeInMB} MB) ── TTFB: ${ttfb}ms ── Download: ${downloadTime}ms ── Total: ${totalDuration}ms`);
+    // Optional: Return metrics if you need to store them elsewhere
+    return { ttfb, downloadTime, totalDuration, sizeInMB };
+
   } catch (err) {
-    console.error(`[x] Failed to download ${url}:`, err);
+    const failTime = (performance.now() - startTime).toFixed(2);
+    console.error(`[x] Failed to download ${url} after ${failTime}ms:`, err);
     throw err;
   }
 }
@@ -56,7 +78,7 @@ async function runWithConcurrency(limit, items, worker) {
   const workers = Array.from({ length: Math.max(1, limit) }, async () => {
     while (q.length) {
       const item = q.shift();
-      await worker(item);
+      worker(item);
     }
   });
   await Promise.all(workers);
@@ -82,14 +104,14 @@ async function syncOneFolder({ basePath, params, apiUrl, downloadBaseUrl }) {
       if (!localMD5 || localMD5 !== item.md5) {
         console.log(`[ ] MD5 mismatch for ${item.name}, downloading...`);
         await fsp.rm(filePath);
-        const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=true`;
+        const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=false`;
         await downloadFile(u, filePath);
       } else {
         console.log(`[✓] ${item.name} is up-to-date.`);
       }
     } else {
       console.log(`[ ] ${item.name} does not exist locally, downloading...`);
-      const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=true`;
+      const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=false`;
       await downloadFile(u, filePath);
     }
   });
