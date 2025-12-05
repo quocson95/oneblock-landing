@@ -21,25 +21,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. NEW: Install pnpm itself
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9 # Use the version matching your local setup
+      # # 1. NEW: Install pnpm itself
+      # - name: Install pnpm
+      #   uses: pnpm/action-setup@v4
+      #   with:
+      #     version: 9 # Use the version matching your local setup
+      - uses: oven-sh/setup-bun@v2
 
-      # 2. UPDATED: Setup Node with pnpm caching
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      # # 2. UPDATED: Setup Node with pnpm caching
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '24'
+      #     cache: 'pnpm' # Changed from 'npm' to 'pnpm'
+
+      - name: Cache Bun dependencies
+        id: cache-bun-dependencies
+        uses: actions/cache@v4
         with:
-          node-version: '24'
-          cache: 'pnpm' # Changed from 'npm' to 'pnpm'
+          path: ~/.bun/install/cache # Or the path to your project's node_modules if you prefer caching that
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun
 
       # 3. UPDATED: Install dependencies using pnpm
+      # - name: Install Dependencies
+        # run: pnpm install --frozen-lockfile
+
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun i
       # 4. UPDATED: Build using pnpm
       - name: Build Astro Project
-        run: node sync-mdx.cjs && pnpm astro build        
+        run: bun run sync-mdx.cjs && bun astro build        
 
       # . PROD Deploy Step: Live Deployment
       # Runs only if the user selected 'prod'
