@@ -63,8 +63,8 @@ async function downloadFile(url, filePath) {
 
     const contentLength = res.headers.get('content-length');
     const sizeInMB = contentLength ? (parseInt(contentLength) / (1024 * 1024)).toFixed(2) : 'unknown';
-
-    await ensureDir(path.dirname(filePath));
+    const dirName = path.dirname(filePath);
+    await ensureDir(dirName);
     await pipeline(Readable.fromWeb(res.body), fs.createWriteStream(filePath));
 
     const endTime = performance.now();
@@ -72,8 +72,8 @@ async function downloadFile(url, filePath) {
     const ttfb = (ttfbTime - startTime).toFixed(2);
     const downloadTime = (endTime - ttfbTime).toFixed(2);
     const totalDuration = (endTime - startTime).toFixed(2);
-
-    console.log(`[✓] Downloaded ${filePath} (${sizeInMB} MB) ── TTFB: ${ttfb}ms ── Download: ${downloadTime}ms ── Total: ${totalDuration}ms`);
+    const fileName = path.basename(filePath);
+    console.log(`[✓] Downloaded ${fileName} (${sizeInMB} MB) TTFB: ${ttfb}ms Download: ${downloadTime}ms Total: ${totalDuration}ms`);
     return { ttfb, downloadTime, totalDuration, sizeInMB };
 
   } catch (err) {
@@ -149,6 +149,7 @@ async function syncOneFolder({ basePath, params, apiUrl, downloadBaseUrl }) {
 }
 
 async function syncFiles() {
+  const startTime = performance.now();
   try {
     const apiUrl = "https://api.oneblock.vn/be/mdx";
     const downloadBaseUrl = "https://api.oneblock.vn/be/s3/";
@@ -164,8 +165,9 @@ async function syncFiles() {
     for (const syncItem of listSync) {
         await syncOneFolder({ ...syncItem, apiUrl, downloadBaseUrl });
     }
-
-    console.log("[✓] Sync complete.");
+    const endTime = performance.now();
+    const totalDuration = (endTime - startTime).toFixed(2);
+    console.log(`[✓] Sync complete. const ${totalDuration} ms`);
   } catch (error) {
     console.error("[x] Error syncing files:", error);
     process.exitCode = 1;
