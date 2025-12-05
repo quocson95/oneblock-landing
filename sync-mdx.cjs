@@ -17,8 +17,8 @@ const undiciAgent = new Agent({
   },
   keepAliveTimeout: 10000, // 10s
   keepAliveMaxTimeout: 60000,
-  connections: 50, // Max open connections in the pool
-  pipelining: 0,   // Keep 0 for file downloads to avoid ordering issues
+  connections: 100, // Max open connections in the pool
+  pipelining: 100,   // Keep 0 for file downloads to avoid ordering issues
 });
 
 // Set as global dispatcher for all fetch() calls
