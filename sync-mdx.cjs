@@ -7,6 +7,23 @@ const crypto = require("node:crypto");
 const { pipeline } = require("node:stream/promises");
 const { Readable } = require("node:stream");
 
+// 1. USE UNDICI AGENT (Native Fetch Engine)
+const { Agent, setGlobalDispatcher, getGlobalDispatcher } = require('undici');
+
+// Configure the high-performance connection pool
+const undiciAgent = new Agent({
+  connect: {
+    family: 4, // Force IPv4 to avoid IPv6 timeouts (Huge TTFB saver)
+  },
+  keepAliveTimeout: 10000, // 10s
+  keepAliveMaxTimeout: 60000,
+  connections: 50, // Max open connections in the pool
+  pipelining: 0,   // Keep 0 for file downloads to avoid ordering issues
+});
+
+// Set as global dispatcher for all fetch() calls
+setGlobalDispatcher(undiciAgent);
+
 // --- utils ---
 async function ensureDir(dir) {
   await fsp.mkdir(dir, { recursive: true });
@@ -27,42 +44,36 @@ function calculateMD5(filePath) {
     const stream = fs.createReadStream(filePath);
     stream.on("error", reject);
     hash.on("error", reject);
-
     stream.on("data", (chunk) => hash.update(chunk));
     stream.on("end", () => resolve(hash.digest("hex")));
   });
 }
 
 async function downloadFile(url, filePath) {
-  const startTime = performance.now(); // 1. Start timer
+  const startTime = performance.now();
 
   try {
+    // Note: No need to pass { agent } here. 
+    // fetch() uses the GlobalDispatcher we set at the top.
     const res = await fetch(url);
     
-    // 2. Capture TTFB (Time To First Byte)
-    // This is the time it took to establish connection and get headers
     const ttfbTime = performance.now(); 
 
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
 
-    // Optional: Get content length for throughput calculation
     const contentLength = res.headers.get('content-length');
     const sizeInMB = contentLength ? (parseInt(contentLength) / (1024 * 1024)).toFixed(2) : 'unknown';
 
     await ensureDir(path.dirname(filePath));
-
     await pipeline(Readable.fromWeb(res.body), fs.createWriteStream(filePath));
 
-    // 3. Capture End Time
     const endTime = performance.now();
-
-    // 4. Calculate Metrics
-    const ttfb = (ttfbTime - startTime).toFixed(2);           // Request latency
-    const downloadTime = (endTime - ttfbTime).toFixed(2);     // Data transfer time
-    const totalDuration = (endTime - startTime).toFixed(2);   // Total time
+    
+    const ttfb = (ttfbTime - startTime).toFixed(2);
+    const downloadTime = (endTime - ttfbTime).toFixed(2);
+    const totalDuration = (endTime - startTime).toFixed(2);
 
     console.log(`[✓] Downloaded ${filePath} (${sizeInMB} MB) ── TTFB: ${ttfb}ms ── Download: ${downloadTime}ms ── Total: ${totalDuration}ms`);
-    // Optional: Return metrics if you need to store them elsewhere
     return { ttfb, downloadTime, totalDuration, sizeInMB };
 
   } catch (err) {
@@ -72,16 +83,28 @@ async function downloadFile(url, filePath) {
   }
 }
 
-// Simple concurrency runner
+// 2. FIXED CONCURRENCY RUNNER
 async function runWithConcurrency(limit, items, worker) {
   const q = [...items];
-  const workers = Array.from({ length: Math.max(1, limit) }, async () => {
-    while (q.length) {
-      const item = q.shift();
-      worker(item);
-    }
-  });
-  await Promise.all(workers);
+  const activeWorkers = [];
+
+  // Create X workers
+  for (let i = 0; i < Math.min(limit, items.length); i++) {
+    activeWorkers.push((async () => {
+      while (q.length > 0) {
+        const item = q.shift();
+        try {
+          // CRITICAL FIX: Added 'await' here. 
+          // Without this, the loop spins instantly and floods the network.
+          await worker(item);
+        } catch (e) {
+          console.error(`Error processing ${item.name || 'item'}:`, e);
+        }
+      }
+    })());
+  }
+  
+  await Promise.all(activeWorkers);
 }
 
 // --- main ---
@@ -90,27 +113,35 @@ async function syncOneFolder({ basePath, params, apiUrl, downloadBaseUrl }) {
 
   const res = await fetch(`${apiUrl}?${params}`);
   if (!res.ok) throw new Error(`Failed to fetch ${apiUrl}?${params}: ${res.status} ${res.statusText}`);
-  const items = await res.json(); // expecting [{ name, md5 }, ...]
+  const items = await res.json(); 
 
-  // Limit concurrent file work to avoid overwhelming disk/network
-  const CONCURRENCY = 100;
+  // 3. TUNED CONCURRENCY
+  // Reduced to 20. 100 often causes TCP congestion/packet loss, increasing TTFB.
+  const CONCURRENCY = 20;
 
   await runWithConcurrency(CONCURRENCY, items, async (item) => {
     const filePath = path.join(basePath, item.name);
     const exists = await fileExists(filePath);
 
+    // Logic: If file exists, check MD5. If mismatch or missing, download.
+    let shouldDownload = false;
+    
     if (exists) {
       const localMD5 = await calculateMD5(filePath).catch(() => null);
       if (!localMD5 || localMD5 !== item.md5) {
-        console.log(`[ ] MD5 mismatch for ${item.name}, downloading...`);
-        await fsp.rm(filePath);
-        const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=false`;
-        await downloadFile(u, filePath);
+        console.log(`[M] MD5 mismatch: ${item.name}`);
+        shouldDownload = true;
+        // Optimization: Don't delete yet. Open with 'w' flag in createWriteStream overwrites anyway.
+        // Less IO operations = faster.
       } else {
-        console.log(`[✓] ${item.name} is up-to-date.`);
+        // console.log(`[✓] ${item.name} is up-to-date.`);
       }
     } else {
-      console.log(`[ ] ${item.name} does not exist locally, downloading...`);
+      console.log(`[N] New file: ${item.name}`);
+      shouldDownload = true;
+    }
+
+    if (shouldDownload) {
       const u = `${downloadBaseUrl}?name=${encodeURIComponent(item.name)}&bucket=mdx&noCache=false`;
       await downloadFile(u, filePath);
     }
@@ -129,12 +160,10 @@ async function syncFiles() {
       { basePath: path.join(rootPath, "about"), params: "type_doc=2" },
     ];
 
-    // Run folders in parallel (bounded per-folder concurrency inside)
-    await Promise.all(
-      listSync.map((syncItem) =>
-        syncOneFolder({ ...syncItem, apiUrl, downloadBaseUrl })
-      )
-    );
+    // Process folders sequentially to keep logs readable, or parallel if preferred
+    for (const syncItem of listSync) {
+        await syncOneFolder({ ...syncItem, apiUrl, downloadBaseUrl });
+    }
 
     console.log("[✓] Sync complete.");
   } catch (error) {
