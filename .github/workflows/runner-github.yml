@@ -52,7 +52,7 @@ jobs:
         run: bun i
       # 4. UPDATED: Build using pnpm
       - name: Build Astro Project
-        run: bun run sync-mdx.cjs && bun astro build        
+        run: bun run sync-mdx.cjs && bun astro build && bun run postbuild  
 
       # . PROD Deploy Step: Live Deployment
       # Runs only if the user selected 'prod'
